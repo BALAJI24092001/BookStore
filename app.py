@@ -14,7 +14,6 @@ class Book_Store(App):
         self.window.pos_hint = {"center_x": 0.5, "center_y": 0.5}
         #add widgets to window
 
-        print(inp)
         self.img = Image(source='images/books.png')
         self.lab = Label(
                         text="Enter book name",
@@ -43,7 +42,9 @@ class Book_Store(App):
 
         return self.window
 
-
+    def click(self, ins):
+        text = self.inp.text;
+        pass
 
     def callback(self, instance):
         self.lab.text = "Hello " + self.inp.text + "!"
