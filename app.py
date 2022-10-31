@@ -13,7 +13,7 @@ class Book_Store(App):
     def build(self):
         self.window = GridLayout()
         self.window.cols = 1
-        self.window.size_hint = (0.6, 0.7)
+        self.window.size_hint = (0.7, 0.8)
         self.window.pos_hint = {"center_x": 0.5, "center_y": 0.5}
 
         self.img = Image(source='images/books.png')
@@ -24,63 +24,62 @@ class Book_Store(App):
                         )
         self.inp = TextInput(
                         multiline=False,
-                        padding_y = (20, 20),
+                        padding_y = (10, 10),
                         size_hint = (1, 0.5),
                         padding_x = (5, 5)
                         )
         self.but = Button(
-                        text="SEARCH",
+                        text="ADD",
                         size_hint = (1, 0.5),
                         bold = True,
                         background_color = "#00FFCE"
                         )
         self.but.bind(on_press=self.callback)
+        self.inpr = TextInput(padding_y = (20, 20), padding=15)
+        self.butStop = Button(
+                        text="PRINT",
+                        size_hint=(1, 0.5),
+                        bold=True,
+                        background_color="#00FFCE"
+                )
+        self.butStop.bind(on_press= self.clear)
 
         self.window.add_widget(self.img)
         self.window.add_widget(self.lab)
         self.window.add_widget(self.inp)
         self.window.add_widget(self.but)
+        self.window.add_widget(self.inpr)
+        self.window.add_widget(self.butStop)
 
         return self.window
 
     def click(self, instance):
         self.text = self.inp.text;
 
-
     def callback(self, instance):
         con = sqlite3.connect("books.db")
         cur = con.cursor()
 
-        layout = GridLayout(cols = 1, padding = 10)
-
         b_name = self.inp.text
-        
-        query = "SELECT * FROM BOOKS WHERE book_name='"+b_name+"'"
-        cur.execute(query)
-        lst = list(cur.fetchall()[0])
+        try:
+
+            query = "SELECT * FROM BOOKS WHERE book_name='"+b_name+"'"
+            cur.execute(query)
+            lst = list(cur.fetchall()[0])
+        except:
+            return
+
+        isbn = lst[0]
+        book_name = lst[1]
+        author_name = lst[2]
+        publisher = lst[3]
         price = lst[4]
-        quantity = int(lst[5])
-        if quantity >= 0:
-            lab0 = Label(text= "Price of the book : {0}".format(price) )
-            lab1 = Label(text="Thank for purchasing " + b_name)
-            lab2 = Label(text= "VISIT AGAIN")
-            layout.add_widget(lab0)
-            layout.add_widget(lab1)
-            layout.add_widget(lab2)
-        else:
-            lab0 = Label(text = "SOLD OUT", font_size=25, color="#e30013")
-            layout.add_widget(lab0)
 
-        closeButton = Button(text = "close")
+        string = self.inpr.text + "\n" + "ISBN : " + str(isbn).ljust(15) + book_name[:8].ljust(10) + " "*5 + author_name[:10].ljust(10) + " "*5 + str(price).rjust(10)
+        self.inpr.text = string
 
-        layout.add_widget(closeButton)
 
-        popup = Popup(title="RECEIPT",
-                      content = layout,
-                      size_hint = (None, None), size=(300, 200)
-                      )
-        popup.open()
-        closeButton.bind(on_press = popup.dismiss)
-
+    def clear(self):
+        self.inpr.text = ""
 if __name__ == "__main__":
     Book_Store().run()
